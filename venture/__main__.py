@@ -18,7 +18,7 @@ def init():
     # Modes
     mode_group = parser.add_mutually_exclusive_group(required=False)
     mode_group.add_argument('--setup', action='store_const', dest='mode', const='s',
-                    help=f'{bcolors.YELLOW}Runs setup, use if config is missing or damaged{bcolors.ENDC}')
+                    help=f'{bcolors.YELLOW}Runs config setup, use if config is missing or damaged{bcolors.ENDC}')
     mode_group.add_argument('--config', action='store_const', dest='mode', const='c',
                     help=f'{bcolors.YELLOW}Outputs config file{bcolors.ENDC}')
 
@@ -35,8 +35,9 @@ def init():
                        help=f'{bcolors.PINK}Creates a new python project{bcolors.ENDC}')
     type_group.add_argument('--shell', action='store_const', dest='type', const='s',
                        help=f'{bcolors.PINK}Creates a new shell project{bcolors.ENDC}')
+                       
     parser_init.add_argument('-v','--verbose', action='store_true', dest='verbose',
-                        help=f'{bcolors.PINK}Changes output to be verbose{bcolors.ENDC}')
+                        help=f'{bcolors.DARKGREY}Changes output to be verbose{bcolors.ENDC}')
     parser_init.set_defaults(type='b',verbose=False)
 
 
@@ -70,7 +71,7 @@ def make_remote_repo():
     try:
         return json.loads(login.text)['clone_url']
     except KeyError:
-        raise ConnectionAbortedError("Remote repository already exists with name... " + project_name)
+        raise ConnectionAbortedError("Trouble connecting to repository at... github.com/" + username +'/'+ project_name)
 
 def initialize_project():
     """
@@ -158,9 +159,9 @@ def main():
         username = config['github.com']['User']
         access_token = config['github.com']['AccessToken']
     except KeyError:
-        print(f'{bcolors.RED}KeyError{bcolors.ENDC}: config file is missing or damaged, use {bcolors.PINK}venture --setup{bcolors.ENDC}',
-            f'\nUse {bcolors.YELLOW}[-h]{bcolors.ENDC} option for more info')
-        exit()
+        print(f'[{bcolors.CYAN}?{bcolors.ENDC}] Please enter the following information...')
+        username = input(f'[{bcolors.DARKGREY}github.com{bcolors.ENDC}] username = ')
+        access_token = input(f'[{bcolors.DARKGREY}github.com{bcolors.ENDC}] access_token = ')
 
     # Run mode
     if mode == 'c':
