@@ -58,16 +58,18 @@ def print_config():
     """
     config.display_config('config.ini')
 
-def make_remote_repo(path, username, access_token):
+def make_remote_repo(username, access_token):
     """
     Makes remote repo and returns the clone url
     """
-    project_name = path.split('/')[-1]
     # Contact API
     description = project_name + ' repository'
     payload = {'name': project_name, 'description': description}
     login = requests.post('https://api.github.com/' + 'user/repos', auth=(username,access_token), data=json.dumps(payload))
-    return json.loads(login.text)['clone_url']
+    try:
+        return json.loads(login.text)['clone_url']
+    except KeyError:
+        raise ConnectionAbortedError("Remote repository already exists with name... " + project_name)
 
 def initialize_project():
     """
@@ -84,6 +86,16 @@ def initialize_project():
             f'\nUse {bcolors.YELLOW}[-h]{bcolors.ENDC} option for more info')
         exit()
 
+    # Create Github remote repository
+    if verbose: print(f'[{bcolors.BLUE}~{bcolors.ENDC}] Contacting github API')
+    try:
+        remote_url = make_remote_repo(username, access_token)
+    except ConnectionAbortedError as err:
+        print(f'{bcolors.RED}ConnectionAbortedError{bcolors.ENDC}:', err,
+            f'\nUse {bcolors.YELLOW}[-h]{bcolors.ENDC} option for more info')
+        exit()
+    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created github remote repository')
+
     # Creates new directory
     os.mkdir(path)
     if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created new directory')
@@ -96,19 +108,26 @@ def initialize_project():
     os.system('git init')
     if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created git repository')
 
-    # Create Github remote repository
-    if verbose: print(f'[{bcolors.BLUE}~{bcolors.ENDC}] Contacting github API')
-    remote_url = make_remote_repo(path, username, access_token)
-    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created github remote repository')
-
     # Add remote repo to origin
-    os.system('git add remote origin ' + remote_url)
+    remote_ssh = 'git@github.com:' + username + '/' + project_name + '.git'
+    os.system('git remote add origin ' + remote_ssh)
     if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Added url to origin')
 
     # Create README.md
     os.system('touch README.md')
-    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created url to origin')
+    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created README.md')
 
+    # Stage all files
+    os.system('git add .')
+    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Staged all files')
+
+    # Initial commit
+    os.system('git commit -m "initial commit"')
+    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Committed changes')
+
+    # Push to github
+    os.system('git push -u origin master')
+    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Pushed to github')
 
 
 def main():
@@ -117,9 +136,10 @@ def main():
     # Get Config Data
     config = ConfigParser()
     config.read('config.ini')
-    global username, access_token
+    global username, access_token, project_name
     username = config['github.com']['User']
     access_token = config['github.com']['AccessToken']
+
 
     mode = ARGS.mode
     if mode == 's':
@@ -127,6 +147,7 @@ def main():
     elif mode == 'c':
         print_config()
     elif mode == 'i':
+        project_name = ARGS.location[0].split('/')[-1]
         initialize_project()
 
 
