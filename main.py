@@ -36,7 +36,7 @@ def init():
                        help=f'{bcolors.PINK}Creates a new shell project{bcolors.ENDC}')
     parser_init.add_argument('-v','--verbose', action='store_true', dest='verbose',
                         help=f'{bcolors.PINK}Changes output to be verbose{bcolors.ENDC}')
-    parser_init.set_defaults(mode='n', type='b',verbose=False)
+    parser_init.set_defaults(type='b',verbose=False)
 
 
     global ARGS
@@ -97,11 +97,21 @@ def initialize_project():
         exit()
     if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created github remote repository')
 
-    # Creates new directory
-    os.mkdir(path)
-    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created new directory')
+    # Change to new project
+    os.chdir(os.path.abspath(os.path.join(path, os.pardir)))
+    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Changed to new directory')
 
-    # Change to path
+    # Setup type of project
+    if type == 'p':
+        if verbose: print(f'[{bcolors.BLUE}~{bcolors.ENDC}] Creating python project from templat')
+        prep.new_pyfile(project_name, root_path)
+        if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Python project created')
+    else:
+        os.mkdir(path)
+        if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created new directory')
+        os.system('touch README.md')
+
+    # Change to new project
     os.chdir(path)
     if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Changed to new directory')
 
@@ -113,16 +123,6 @@ def initialize_project():
     remote_ssh = 'git@github.com:' + username + '/' + project_name + '.git'
     os.system('git remote add origin ' + remote_ssh)
     if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Added url to origin')
-
-    # Create README.md
-    os.system('touch README.md')
-    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created README.md')
-
-    # Setup type of project
-    if type == 'p':
-        if verbose: print(f'[{bcolors.BLUE}~{bcolors.ENDC}] Creating python project from templat')
-        prep.new_pyfile(username)
-        if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Python project created')
 
     # Stage all files
     os.system('git add .')
@@ -137,12 +137,21 @@ def initialize_project():
     if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Pushed to github')
 
 def main():
+    global username, access_token, project_name, root_path
     init()
 
-    # Get Config Data
+    #Get root path
+    root_path = os.path.realpath('')
+
+    # Check if mode is in setup
+    mode = ARGS.mode
+    if mode == 's':
+        setup_config()
+        exit()
+
+    # Get config data
     config = ConfigParser()
     config.read('config.ini')
-    global username, access_token, project_name
     try:
         username = config['github.com']['User']
         access_token = config['github.com']['AccessToken']
@@ -151,15 +160,14 @@ def main():
             f'\nUse {bcolors.YELLOW}[-h]{bcolors.ENDC} option for more info')
         exit()
 
-
-    mode = ARGS.mode
-    if mode == 's':
-        setup_config()
-    elif mode == 'c':
+    # Run mode
+    if mode == 'c':
         print_config()
-    elif mode == 'i':
+    else:
         project_name = ARGS.location[0].split('/')[-1]
         initialize_project()
+
+    print(ARGS)
 
 if __name__ == '__main__':
     main()
