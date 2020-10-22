@@ -58,7 +58,7 @@ def print_config():
     """
     config.display_config('config.ini')
 
-def make_remote_repo(username, access_token):
+def make_remote_repo():
     """
     Makes remote repo and returns the clone url
     """
@@ -70,9 +70,6 @@ def make_remote_repo(username, access_token):
         return json.loads(login.text)['clone_url']
     except KeyError:
         raise ConnectionAbortedError("Remote repository already exists with name... " + project_name)
-
-def prepare_new_pyfile():
-    pass
 
 def initialize_project():
     """
@@ -93,7 +90,7 @@ def initialize_project():
     # Create Github remote repository
     if verbose: print(f'[{bcolors.BLUE}~{bcolors.ENDC}] Contacting github API')
     try:
-        remote_url = make_remote_repo(username, access_token)
+        remote_url = make_remote_repo()
     except ConnectionAbortedError as err:
         print(f'{bcolors.RED}ConnectionAbortedError{bcolors.ENDC}:', err,
             f'\nUse {bcolors.YELLOW}[-h]{bcolors.ENDC} option for more info')
@@ -123,7 +120,7 @@ def initialize_project():
 
     # Setup Python File
     if type == 'p':
-        prepare_new_pyfile()
+        prep.new_pyfile(username)
 
     # Stage all files
     os.system('git add .')
@@ -136,7 +133,6 @@ def initialize_project():
     # Push to github
     os.system('git push -u origin master')
     if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Pushed to github')
-
 
 def main():
     init()
