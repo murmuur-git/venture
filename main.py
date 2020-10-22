@@ -71,11 +71,15 @@ def make_remote_repo(username, access_token):
     except KeyError:
         raise ConnectionAbortedError("Remote repository already exists with name... " + project_name)
 
+def prepare_new_pyfile():
+    pass
+
 def initialize_project():
     """
     Goes through process of initializing a project
     """
     path = ARGS.location[0]
+    type = ARGS.type
     verbose = ARGS.verbose
 
     # Checks if path is valid
@@ -116,6 +120,10 @@ def initialize_project():
     # Create README.md
     os.system('touch README.md')
     if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created README.md')
+
+    # Setup Python File
+    if type == 'p':
+        prepare_new_pyfile()
 
     # Stage all files
     os.system('git add .')
