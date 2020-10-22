@@ -1,7 +1,7 @@
 """
 Global objects for package
 
-author: murmuur
+author: <your name>
 """
 
 class bcolors:

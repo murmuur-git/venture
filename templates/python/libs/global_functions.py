@@ -1,5 +1,5 @@
 """
 Global functions for package
 
-author: murmuur
+author: <your name>
 """
