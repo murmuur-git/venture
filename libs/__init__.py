@@ -3,7 +3,7 @@ Package Dependencies
 """
 from .global_objects import *
 from .global_functions import *
-import config_editor
+from libs import config_editor as config
 
 
-import os, argparse, ast, requests
+import os, argparse, ast

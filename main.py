@@ -13,30 +13,42 @@ def init():
     parser = argparse.ArgumentParser(description=description,
                                      epilog='project type arguments are mutually exclusive')
 
-    parser.add_argument('location', action='store', nargs=1, type=str,
-                    help=f'{bcolors.YELLOW}Location of new project{bcolors.ENDC}')
 
-    # Arguments for which type of project to create
-    type_group = parser.add_mutually_exclusive_group(required=False)
+    # Modes
+    mode_group = parser.add_mutually_exclusive_group(required=False)
+    mode_group.add_argument('--setup', action='store_const', dest='mode', const='s',
+                    help=f'{bcolors.YELLOW}Sets up command for first time use{bcolors.ENDC}')
+    mode_group.add_argument('--config', action='store_const', dest='mode', const='c',
+                    help=f'{bcolors.YELLOW}Sets up command for first time use{bcolors.ENDC}')
+
+    # Commands
+    subparsers = parser.add_subparsers(title='Commands', help='Commands help')
+    # ---> Init
+    parser_init = subparsers.add_parser('init', help=f'{bcolors.BLUE}Initializes a new project{bcolors.ENDC}')
+    parser_init.add_argument('location', action='store', nargs=1, type=str)
+
+    type_group = parser_init.add_mutually_exclusive_group(required=False)
     type_group.add_argument('-b','--blank', action='store_const', dest='type', const='b',
                        help=f'{bcolors.PINK}Creates a new blank project (default){bcolors.ENDC}')
     type_group.add_argument('-p','--python', action='store_const', dest='type', const='p',
                        help=f'{bcolors.PINK}Creates a new python project{bcolors.ENDC}')
     type_group.add_argument('--shell', action='store_const', dest='type', const='s',
                        help=f'{bcolors.PINK}Creates a new shell project{bcolors.ENDC}')
+    parser_init.add_argument('-v','--verbose', action='store_true', dest='verbose',
+                        help=f'{bcolors.PINK}Changes output to be verbose{bcolors.ENDC}')
+    parser_init.set_defaults(type='b',verbose=False)
+    #
+    #
 
-    parser.add_argument('-v','--verbose', action='store_true', dest='verbose',
-                       help=f'{bcolors.PINK}Creates a new shell project{bcolors.ENDC}')
-
-
-    parser.set_defaults(verbose=False, type='b')
+    parser.set_defaults(mode='h')#, type='b')
 
     global ARGS
     ARGS = parser.parse_args()
 
-def main():
-    init()
-
+def initialize_project():
+    """
+    Function goes through process of initializing a project
+    """
     path = ARGS.location[0]
     verbose = ARGS.verbose
 
@@ -59,9 +71,10 @@ def main():
     if verbose: print(f'[{bcolors.LIGHTGREY}~{bcolors.ENDC}] Creating git repository')
     os.system('git init')
 
+def main():
+    init()
 
-
-
+    print(ARGS)
 
 if __name__ == '__main__':
     main()
