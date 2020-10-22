@@ -4,7 +4,6 @@ CLI tool to initialize a new project
 author: murmuur
 """
 from libs import *
-import requests
 
 def init():
     """
@@ -44,6 +43,9 @@ def init():
     ARGS = parser.parse_args()
 
 def setup_config():
+    """
+    Sets up config file by asking for input from user
+    """
     print(f'[{bcolors.CYAN}?{bcolors.ENDC}] Please enter the following information...')
     username = input(f'[{bcolors.DARKGREY}github.com{bcolors.ENDC}] username = ')
     access_token = input(f'[{bcolors.DARKGREY}github.com{bcolors.ENDC}] access_token = ')
@@ -51,7 +53,21 @@ def setup_config():
     print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created config file')
 
 def print_config():
+    """
+    Outputs contents of config file to console
+    """
     config.display_config('config.ini')
+
+def make_remote_repo(path, username, access_token):
+    """
+    Makes remote repo and returns the clone url
+    """
+    project_name = path.split('/')[-1]
+    # Contact API
+    description = project_name + ' repository'
+    payload = {'name': project_name, 'description': description}
+    login = requests.post('https://api.github.com/' + 'user/repos', auth=(username,access_token), data=json.dumps(payload))
+    return json.loads(login.text)['clone_url']
 
 def initialize_project():
     """
@@ -66,6 +82,7 @@ def initialize_project():
     except FileExistsError as err:
         print(f'{bcolors.RED}FileExistsError{bcolors.ENDC}:', err,
             f'\nUse {bcolors.YELLOW}[-h]{bcolors.ENDC} option for more info')
+        exit()
 
     # Creates new directory
     os.mkdir(path)
@@ -76,15 +93,34 @@ def initialize_project():
     if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Changed to new directory')
 
     # Initialize new repository
-    if verbose: print(f'[{bcolors.BLUE}~{bcolors.ENDC}] Creating git repository')
     os.system('git init')
+    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created git repository')
 
     # Create Github remote repository
-    if verbose: print(f'[{bcolors.BLUE}~{bcolors.ENDC}] Creating github remote repository')
-    os.system('git init')
+    if verbose: print(f'[{bcolors.BLUE}~{bcolors.ENDC}] Contacting github API')
+    remote_url = make_remote_repo(path, username, access_token)
+    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created github remote repository')
+
+    # Add remote repo to origin
+    os.system('git add remote origin ' + remote_url)
+    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Added url to origin')
+
+    # Create README.md
+    os.system('touch README.md')
+    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created url to origin')
+
+
 
 def main():
     init()
+
+    # Get Config Data
+    config = ConfigParser()
+    config.read('config.ini')
+    global username, access_token
+    username = config['github.com']['User']
+    access_token = config['github.com']['AccessToken']
+
     mode = ARGS.mode
     if mode == 's':
         setup_config()
