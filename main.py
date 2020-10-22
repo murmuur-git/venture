@@ -4,6 +4,7 @@ CLI tool to initialize a new project
 author: murmuur
 """
 from libs import *
+import requests
 
 def init():
     """
@@ -17,9 +18,9 @@ def init():
     # Modes
     mode_group = parser.add_mutually_exclusive_group(required=False)
     mode_group.add_argument('--setup', action='store_const', dest='mode', const='s',
-                    help=f'{bcolors.YELLOW}Sets up command for first time use{bcolors.ENDC}')
+                    help=f'{bcolors.YELLOW}Sets up config file, if missing or damaged{bcolors.ENDC}')
     mode_group.add_argument('--config', action='store_const', dest='mode', const='c',
-                    help=f'{bcolors.YELLOW}Sets up command for first time use{bcolors.ENDC}')
+                    help=f'{bcolors.YELLOW}Outputs config file{bcolors.ENDC}')
 
     # Commands
     subparsers = parser.add_subparsers(title='Commands', help='Commands help')
@@ -36,18 +37,25 @@ def init():
                        help=f'{bcolors.PINK}Creates a new shell project{bcolors.ENDC}')
     parser_init.add_argument('-v','--verbose', action='store_true', dest='verbose',
                         help=f'{bcolors.PINK}Changes output to be verbose{bcolors.ENDC}')
-    parser_init.set_defaults(type='b',verbose=False)
-    #
-    #
+    parser_init.set_defaults(mode='i', type='b',verbose=False)
 
-    parser.set_defaults(mode='h')#, type='b')
 
     global ARGS
     ARGS = parser.parse_args()
 
+def setup_config():
+    print(f'[{bcolors.CYAN}?{bcolors.ENDC}] Please enter the following information...')
+    username = input(f'[{bcolors.DARKGREY}github.com{bcolors.ENDC}] username = ')
+    access_token = input(f'[{bcolors.DARKGREY}github.com{bcolors.ENDC}] access_token = ')
+    config.create_config(username,access_token)
+    print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created config file')
+
+def print_config():
+    config.display_config('config.ini')
+
 def initialize_project():
     """
-    Function goes through process of initializing a project
+    Goes through process of initializing a project
     """
     path = ARGS.location[0]
     verbose = ARGS.verbose
@@ -61,20 +69,30 @@ def initialize_project():
 
     # Creates new directory
     os.mkdir(path)
-    if verbose: print(f'[{bcolors.BLUE}~{bcolors.ENDC}] Created new directory')
+    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created new directory')
 
     # Change to path
     os.chdir(path)
-    if verbose: print(f'[{bcolors.BLUE}~{bcolors.ENDC}] Changed to new directory')
+    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Changed to new directory')
 
     # Initialize new repository
-    if verbose: print(f'[{bcolors.LIGHTGREY}~{bcolors.ENDC}] Creating git repository')
+    if verbose: print(f'[{bcolors.BLUE}~{bcolors.ENDC}] Creating git repository')
+    os.system('git init')
+
+    # Create Github remote repository
+    if verbose: print(f'[{bcolors.BLUE}~{bcolors.ENDC}] Creating github remote repository')
     os.system('git init')
 
 def main():
     init()
+    mode = ARGS.mode
+    if mode == 's':
+        setup_config()
+    elif mode == 'c':
+        print_config()
+    elif mode == 'i':
+        initialize_project()
 
-    print(ARGS)
 
 if __name__ == '__main__':
     main()
