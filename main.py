@@ -31,7 +31,7 @@ def init():
 
 def main():
     init()
-    print(ARGS)
+    print(verify_path(ARGS.location[0]))
 
 
 if __name__ == '__main__':

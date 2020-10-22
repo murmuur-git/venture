@@ -1,3 +1,9 @@
+"""
+Global objects for package
+
+author: murmuur
+"""
+
 class bcolors:
     """
     Object that contains text colors and formating for easy use

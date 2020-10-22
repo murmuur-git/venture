@@ -1,4 +1,7 @@
-import os.path
+"""
+Package Dependencies
+"""
+
 import os, argparse, ast
 
 from .global_objects import *
