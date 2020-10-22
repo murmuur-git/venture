@@ -1,5 +1,6 @@
 """
-CLI tool to initialize a new project
+Venture
+ a CLI tool to initialize a new project
 
 author: murmuur
 """
@@ -97,8 +98,9 @@ def initialize_project():
         exit()
     if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created github remote repository')
 
-    # Change to new project
-    os.chdir(os.path.abspath(os.path.join(path, os.pardir)))
+    # Change into new project directory
+    parent_dir = os.path.abspath(os.path.join(path, os.pardir))
+    os.chdir(parent_dir)
     if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Changed to new directory')
 
     # Setup type of project
@@ -111,7 +113,7 @@ def initialize_project():
         if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created new directory')
         os.system('touch README.md')
 
-    # Change to new project
+    # Change into new project
     os.chdir(path)
     if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Changed to new directory')
 

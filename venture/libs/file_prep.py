@@ -1,3 +1,9 @@
+"""
+functions that clone project templates
+
+author: murmuur
+"""
+
 import os
 from shutil import copytree
 
