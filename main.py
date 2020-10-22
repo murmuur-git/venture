@@ -17,7 +17,7 @@ def init():
     # Modes
     mode_group = parser.add_mutually_exclusive_group(required=False)
     mode_group.add_argument('--setup', action='store_const', dest='mode', const='s',
-                    help=f'{bcolors.YELLOW}Sets up config file, if missing or damaged{bcolors.ENDC}')
+                    help=f'{bcolors.YELLOW}Runs setup, use if config is missing or damaged{bcolors.ENDC}')
     mode_group.add_argument('--config', action='store_const', dest='mode', const='c',
                     help=f'{bcolors.YELLOW}Outputs config file{bcolors.ENDC}')
 
@@ -36,7 +36,7 @@ def init():
                        help=f'{bcolors.PINK}Creates a new shell project{bcolors.ENDC}')
     parser_init.add_argument('-v','--verbose', action='store_true', dest='verbose',
                         help=f'{bcolors.PINK}Changes output to be verbose{bcolors.ENDC}')
-    parser_init.set_defaults(mode='i', type='b',verbose=False)
+    parser_init.set_defaults(mode='n', type='b',verbose=False)
 
 
     global ARGS
@@ -120,7 +120,9 @@ def initialize_project():
 
     # Setup type of project
     if type == 'p':
+        if verbose: print(f'[{bcolors.BLUE}~{bcolors.ENDC}] Creating python project from templat')
         prep.new_pyfile(username)
+        if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Python project created')
 
     # Stage all files
     os.system('git add .')
@@ -141,8 +143,13 @@ def main():
     config = ConfigParser()
     config.read('config.ini')
     global username, access_token, project_name
-    username = config['github.com']['User']
-    access_token = config['github.com']['AccessToken']
+    try:
+        username = config['github.com']['User']
+        access_token = config['github.com']['AccessToken']
+    except KeyError:
+        print(f'{bcolors.RED}KeyError{bcolors.ENDC}: config file is missing or damaged, use {bcolors.PINK}venture --setup{bcolors.ENDC}',
+            f'\nUse {bcolors.YELLOW}[-h]{bcolors.ENDC} option for more info')
+        exit()
 
 
     mode = ARGS.mode
@@ -153,7 +160,6 @@ def main():
     elif mode == 'i':
         project_name = ARGS.location[0].split('/')[-1]
         initialize_project()
-
 
 if __name__ == '__main__':
     main()
