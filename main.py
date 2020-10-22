@@ -118,7 +118,7 @@ def initialize_project():
     os.system('touch README.md')
     if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created README.md')
 
-    # Setup Python File
+    # Setup type of project
     if type == 'p':
         prep.new_pyfile(username)
 
