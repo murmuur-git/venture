@@ -12,8 +12,12 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/murmuur-git/venture.git",
     packages=setuptools.find_packages(),
+    python_requires='>=3.6',
+    package_daya={
+       'venture' : ['*'],
+    },
     entry_points = {
         'console_scripts': [
-            'venture = main.__main__:main'
-        ]
+            'venture = venture.__main__:main'
+        ],
     })

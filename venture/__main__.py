@@ -4,7 +4,7 @@ Venture
 
 author: murmuur
 """
-from libs import *
+from .libs import *
 
 def init():
     """
