@@ -169,7 +169,7 @@ def main():
 
     #Get root path
     main_path = os.path.realpath('')
-    root_path = os.path.abspath(os.path.join(root_path, os.pardir))
+    root_path = os.path.abspath(os.path.join(main_path, os.pardir))
 
     # Check if mode is in setup
     mode = ARGS.mode
