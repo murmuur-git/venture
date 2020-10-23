@@ -13,8 +13,8 @@ setuptools.setup(
     url="https://github.com/murmuur-git/venture.git",
     packages=setuptools.find_packages(),
     python_requires='>=3.6',
-    package_daya={
-       'venture' : ['*'],
+    package_data={
+       'venture' : ['templates/python/*', 'templates/python/libs/*'], # Includes python template
     },
     entry_points = {
         'console_scripts': [
