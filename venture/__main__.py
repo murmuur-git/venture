@@ -63,7 +63,7 @@ def setup_config():
     print(f'[{bcolors.CYAN}?{bcolors.ENDC}] Please enter the following information...')
     username = input(f'[{bcolors.DARKGREY}github.com{bcolors.ENDC}] username = ')
     access_token = input(f'[{bcolors.DARKGREY}github.com{bcolors.ENDC}] access_token = ')
-    config.create_config(username,access_token)
+    config.create_config(username,access_token, root_path)
     print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created config file')
 
 def print_config():
@@ -130,7 +130,6 @@ def initialize_project():
     os.system(f'echo "# {project_name}" >> {project_name}/README.md')
     if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created README.md')
 
-
     # Change into new project
     os.chdir(path)
     if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Changed to new directory')
@@ -169,7 +168,8 @@ def main():
     init()
 
     #Get root path
-    root_path = os.path.realpath('')
+    main_path = os.path.realpath('')
+    root_path = os.path.abspath(os.path.join(root_path, os.pardir))
 
     # Check if mode is in setup
     mode = ARGS.mode
