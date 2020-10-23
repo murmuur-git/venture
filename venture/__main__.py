@@ -31,22 +31,22 @@ def init():
                     help=f'{bcolors.YELLOW}Outputs config file{bcolors.ENDC}')
 
     # Commands
-    subparsers = parser.add_subparsers(title='Commands', help='Commands help')
+    subparsers = parser.add_subparsers(title='Commands', help='command help')
     # ---> Init
-    parser_init = subparsers.add_parser('init', help=f'{bcolors.BLUE}Initializes a new project{bcolors.ENDC}')
+    parser_init = subparsers.add_parser('init', help=f'{bcolors.PURPLE}Initializes a new project{bcolors.ENDC}')
     parser_init.add_argument('location', action='store', nargs=1, type=str,
                         help=f'{bcolors.RED}Location for new project{bcolors.ENDC}')
 
     type_group = parser_init.add_mutually_exclusive_group(required=False)
     type_group.add_argument('--blank', action='store_const', dest='type', const='b',
-                       help=f'{bcolors.PINK}Creates a new blank project (default){bcolors.ENDC}')
+                       help=f'{bcolors.YELLOW}Creates a new blank project (default){bcolors.ENDC}')
     type_group.add_argument('-p','--python', action='store_const', dest='type', const='p',
-                       help=f'{bcolors.PINK}Creates a new python project{bcolors.ENDC}')
+                       help=f'{bcolors.YELLOW}Creates a new python project{bcolors.ENDC}')
     type_group.add_argument('--shell', action='store_const', dest='type', const='s',
-                       help=f'{bcolors.PINK}Creates a new shell project{bcolors.ENDC}')
+                       help=f'{bcolors.YELLOW}Creates a new shell project{bcolors.ENDC}')
 
     parser_init.add_argument('-r','--remote', action='store_true', dest='remote',
-                        help=f'{bcolors.DARKGREY}Creates remote github repository along on project initialization{bcolors.ENDC}')
+                        help=f'{bcolors.DARKGREY}Creates remote github repository during project initialization{bcolors.ENDC}')
     parser_init.add_argument('-v','--verbose', action='store_true', dest='verbose',
                         help=f'{bcolors.DARKGREY}Changes output to be verbose{bcolors.ENDC}')
 
@@ -142,10 +142,6 @@ def initialize_project():
     os.system('git init')
     if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created git repository')
 
-    # Creates and checkouts to dev branch
-    os.system('git checkout -b dev')
-    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created and checkout to dev branch')
-
     # Adds to origin
     if remote:
         # Add remote repo to origin
@@ -161,6 +157,10 @@ def initialize_project():
     os.system('git commit -m "initial commit"')
     if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Committed initial commit')
 
+    # Creates and checkouts to dev branch
+    os.system('git checkout -b dev')
+    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created and checkout to dev branch')
+
     # Pushes to github repo
     if remote:
         # Push to github
@@ -168,10 +168,10 @@ def initialize_project():
         if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Pushed to github')
 
 def main():
+    # Set globals
     global username, access_token, project_name, root_path
     #Get root path
     root_path = os.path.abspath(os.path.join(__file__, os.pardir))
-
     init()
 
     # Check if mode is in setup
@@ -181,7 +181,8 @@ def main():
         exit()
 
     # Get config data
-    username, access_token = config.get_github_info()
+    if ARGS.remote:
+        username, access_token = config.get_github_info(root_path)
 
     # Run mode
     if mode == 'c':
@@ -189,7 +190,6 @@ def main():
     else:
         project_name = ARGS.location[0].split('/')[-1]
         initialize_project()
-
 
 if __name__ == '__main__':
     main()

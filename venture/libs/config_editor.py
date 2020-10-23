@@ -1,4 +1,5 @@
 import configparser, os, ast
+from .globals import *
 
 def create_config(username, access_token, root_path):
     config = configparser.ConfigParser()
