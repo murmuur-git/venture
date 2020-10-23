@@ -74,7 +74,9 @@ def print_config():
     """
     Outputs contents of config file to console
     """
-    config.display_config('config.ini')
+    config_path = root_path+'/config.ini'
+    print(f'[{bcolors.BLUE}#{bcolors.ENDC}] Displaying config file located at... ' + config_path, end='\n\n')
+    config.display_config(config_path)
 
 def make_remote_repo():
     """
@@ -180,14 +182,13 @@ def main():
         setup_config()
         exit()
 
-    # Get config data
-    if ARGS.remote:
-        username, access_token = config.get_github_info(root_path)
-
     # Run mode
     if mode == 'c':
         print_config()
     else:
+        # Get config data
+        if ARGS.remote:
+            username, access_token = config.get_github_info(root_path)
         project_name = ARGS.location[0].split('/')[-1]
         initialize_project()
 

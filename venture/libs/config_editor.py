@@ -4,13 +4,16 @@ from .globals import *
 def create_config(username, access_token, root_path):
     config = configparser.ConfigParser()
     config['DEFAULT'] = {}
+    config['defaults'] = {'remote': False,
+                            'verbose': False,
+                            'type': 'b'}
     config['github.com'] = {'User': username,
                             'AccessToken': access_token}
     with open(os.path.abspath(root_path+'/config.ini'), 'w') as configfile:
         config.write(configfile)
 
 def display_config(filename):
-    os.system(f'cat {filename} | less')
+    os.system(f'cat {filename}')
 
 def get_github_info(root_path):
     config = configparser.ConfigParser()
