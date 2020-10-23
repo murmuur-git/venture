@@ -17,7 +17,7 @@ setuptools.setup(
         'requests>=2.24.0'
     ],
     package_data={
-       'venture' : ['templates/python/*', 'templates/python/libs/*'], # Includes python template
+       'venture' : ['config.ini','templates/python/*', 'templates/python/libs/*'], # Includes python template
     },
     entry_points = {
         'console_scripts': [

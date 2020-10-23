@@ -12,8 +12,7 @@ from .libs import config_editor as config
 from .libs import file_prep as prep
 
 # Import dependencies
-from configparser import ConfigParser
-import os, argparse, ast, sys, json, requests
+import os, argparse, sys, json, requests
 
 def init():
     """
@@ -50,7 +49,12 @@ def init():
                         help=f'{bcolors.DARKGREY}Creates remote github repository along on project initialization{bcolors.ENDC}')
     parser_init.add_argument('-v','--verbose', action='store_true', dest='verbose',
                         help=f'{bcolors.DARKGREY}Changes output to be verbose{bcolors.ENDC}')
-    parser_init.set_defaults(type='b',verbose=False, remote=False)
+
+    # Sets defaults
+    remote = config.defaults(root_path).remote()
+    verbose = config.defaults(root_path).verbose()
+    type = config.defaults(root_path).type()
+    parser_init.set_defaults(type=type,verbose=verbose, remote=remote)
 
 
     global ARGS
@@ -64,7 +68,7 @@ def setup_config():
     username = input(f'[{bcolors.DARKGREY}github.com{bcolors.ENDC}] username = ')
     access_token = input(f'[{bcolors.DARKGREY}github.com{bcolors.ENDC}] access_token = ')
     config.create_config(username,access_token, root_path)
-    print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created config file')
+    print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Setup config file at {root_path}/config.ini')
 
 def print_config():
     """
@@ -165,11 +169,10 @@ def initialize_project():
 
 def main():
     global username, access_token, project_name, root_path
-    init()
-
     #Get root path
-    main_path = os.path.realpath('')
-    root_path = os.path.abspath(os.path.join(main_path, os.pardir))
+    root_path = os.path.abspath(os.path.join(__file__, os.pardir))
+
+    init()
 
     # Check if mode is in setup
     mode = ARGS.mode
@@ -178,15 +181,7 @@ def main():
         exit()
 
     # Get config data
-    config = ConfigParser()
-    config.read('config.ini')
-    try:
-        username = config['github.com']['User']
-        access_token = config['github.com']['AccessToken']
-    except KeyError:
-        print(f'[{bcolors.CYAN}?{bcolors.ENDC}] Please enter the following information...')
-        username = input(f'[{bcolors.DARKGREY}github.com{bcolors.ENDC}] username = ')
-        access_token = input(f'[{bcolors.DARKGREY}github.com{bcolors.ENDC}] access_token = ')
+    username, access_token = config.get_github_info()
 
     # Run mode
     if mode == 'c':
