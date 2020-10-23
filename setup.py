@@ -13,6 +13,9 @@ setuptools.setup(
     url="https://github.com/murmuur-git/venture.git",
     packages=setuptools.find_packages(),
     python_requires='>=3.6',
+    install_requires=[
+        'requests>=2.24.0'
+    ],
     package_data={
        'venture' : ['templates/python/*', 'templates/python/libs/*'], # Includes python template
     },
