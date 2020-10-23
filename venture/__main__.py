@@ -137,6 +137,10 @@ def initialize_project():
     os.system('git init')
     if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created git repository')
 
+    # Creates and checkouts to dev branch
+    os.system('git checkout -b dev')
+    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created and checkout to dev branch')
+
     # Adds to origin
     if remote:
         # Add remote repo to origin
@@ -150,7 +154,7 @@ def initialize_project():
 
     # Initial commit
     os.system('git commit -m "initial commit"')
-    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Committed changes')
+    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Committed initial commit')
 
     # Pushes to github repo
     if remote:
