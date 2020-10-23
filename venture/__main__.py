@@ -4,7 +4,16 @@ Venture
 
 author: murmuur
 """
+# Import Globals
 from .libs import *
+
+# Import local dependencies
+from .libs import config_editor as config
+from .libs import file_prep as prep
+
+# Import dependencies
+from configparser import ConfigParser
+import os, argparse, ast, sys, json, requests
 
 def init():
     """
@@ -37,9 +46,11 @@ def init():
     type_group.add_argument('--shell', action='store_const', dest='type', const='s',
                        help=f'{bcolors.PINK}Creates a new shell project{bcolors.ENDC}')
 
+    parser_init.add_argument('-r','--remote', action='store_true', dest='remote',
+                        help=f'{bcolors.DARKGREY}Creates remote github repository along on project initialization{bcolors.ENDC}')
     parser_init.add_argument('-v','--verbose', action='store_true', dest='verbose',
                         help=f'{bcolors.DARKGREY}Changes output to be verbose{bcolors.ENDC}')
-    parser_init.set_defaults(type='b',verbose=False)
+    parser_init.set_defaults(type='b',verbose=False, remote=False)
 
 
     global ARGS
@@ -72,7 +83,7 @@ def make_remote_repo():
     try:
         return json.loads(login.text)['clone_url']
     except KeyError:
-        raise ConnectionAbortedError("Trouble connecting to repository at... github.com/" + username +'/'+ project_name)
+        raise ConnectionAbortedError("Trouble making repository at... github.com/" + username +'/'+ project_name)
 
 def initialize_project():
     """
@@ -81,24 +92,27 @@ def initialize_project():
     path = ARGS.location[0]
     type = ARGS.type
     verbose = ARGS.verbose
+    remote = ARGS.remote
 
     # Checks if path is valid
     try:
         is_valid_path(path)
     except FileExistsError as err:
         print(f'{bcolors.RED}FileExistsError{bcolors.ENDC}:', err,
-            f'\nUse {bcolors.YELLOW}[-h]{bcolors.ENDC} option for more info')
+            f'\nUse {bcolors.YELLOW}[-h]{bcolors.ENDC} option for help')
         exit()
 
-    # Create Github remote repository
-    if verbose: print(f'[{bcolors.BLUE}~{bcolors.ENDC}] Contacting github API')
-    try:
-        remote_url = make_remote_repo()
-    except ConnectionAbortedError as err:
-        print(f'{bcolors.RED}ConnectionAbortedError{bcolors.ENDC}:', err,
-            f'\nUse {bcolors.YELLOW}[-h]{bcolors.ENDC} option for more info')
-        exit()
-    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created github remote repository')
+    # Makes github repo
+    if remote:
+        # Create Github remote repository
+        if verbose: print(f'[{bcolors.BLUE}~{bcolors.ENDC}] Contacting github API')
+        try:
+            remote_url = make_remote_repo()
+        except ConnectionAbortedError as err:
+            print(f'{bcolors.RED}ConnectionAbortedError{bcolors.ENDC}:', err,
+                f'\nUse {bcolors.YELLOW}[-h]{bcolors.ENDC} option for help')
+            exit()
+        if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created github remote repository')
 
     # Change into new project directory
     parent_dir = os.path.abspath(os.path.join(path, os.pardir))
@@ -113,7 +127,7 @@ def initialize_project():
     else:
         os.mkdir(path)
         if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created new directory')
-        os.system('touch README.md')
+        os.system(f'echo "# {project_name}" >> {project_name}/README.md')
 
     # Change into new project
     os.chdir(path)
@@ -123,10 +137,12 @@ def initialize_project():
     os.system('git init')
     if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created git repository')
 
-    # Add remote repo to origin
-    remote_ssh = 'git@github.com:' + username + '/' + project_name + '.git'
-    os.system('git remote add origin ' + remote_ssh)
-    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Added url to origin')
+    # Adds to origin
+    if remote:
+        # Add remote repo to origin
+        remote_ssh = 'git@github.com:' + username + '/' + project_name + '.git'
+        os.system('git remote add origin ' + remote_ssh)
+        if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Added url to origin')
 
     # Stage all files
     os.system('git add .')
@@ -136,9 +152,11 @@ def initialize_project():
     os.system('git commit -m "initial commit"')
     if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Committed changes')
 
-    # Push to github
-    os.system('git push -u origin master')
-    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Pushed to github')
+    # Pushes to github repo
+    if remote:
+        # Push to github
+        os.system('git push -u origin master')
+        if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Pushed to github')
 
 def main():
     global username, access_token, project_name, root_path
@@ -171,7 +189,6 @@ def main():
         project_name = ARGS.location[0].split('/')[-1]
         initialize_project()
 
-    print(ARGS)
 
 if __name__ == '__main__':
     main()
