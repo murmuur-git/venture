@@ -14,6 +14,6 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     entry_points = {
         'console_scripts': [
-            'venture = venture.__main__:main'
+            'venture = main.__main__:main'
         ]
     })

@@ -26,7 +26,8 @@ def init():
     subparsers = parser.add_subparsers(title='Commands', help='Commands help')
     # ---> Init
     parser_init = subparsers.add_parser('init', help=f'{bcolors.BLUE}Initializes a new project{bcolors.ENDC}')
-    parser_init.add_argument('location', action='store', nargs=1, type=str)
+    parser_init.add_argument('location', action='store', nargs=1, type=str,
+                        help=f'{bcolors.RED}Location for new project{bcolors.ENDC}')
 
     type_group = parser_init.add_mutually_exclusive_group(required=False)
     type_group.add_argument('-b','--blank', action='store_const', dest='type', const='b',
@@ -35,7 +36,7 @@ def init():
                        help=f'{bcolors.PINK}Creates a new python project{bcolors.ENDC}')
     type_group.add_argument('--shell', action='store_const', dest='type', const='s',
                        help=f'{bcolors.PINK}Creates a new shell project{bcolors.ENDC}')
-                       
+
     parser_init.add_argument('-v','--verbose', action='store_true', dest='verbose',
                         help=f'{bcolors.DARKGREY}Changes output to be verbose{bcolors.ENDC}')
     parser_init.set_defaults(type='b',verbose=False)
