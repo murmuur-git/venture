@@ -39,7 +39,7 @@ def init():
                         help=f'{bcolors.RED}Location for new project{bcolors.ENDC}')
 
     type_group = parser_init.add_mutually_exclusive_group(required=False)
-    type_group.add_argument('-b','--blank', action='store_const', dest='type', const='b',
+    type_group.add_argument('--blank', action='store_const', dest='type', const='b',
                        help=f'{bcolors.PINK}Creates a new blank project (default){bcolors.ENDC}')
     type_group.add_argument('-p','--python', action='store_const', dest='type', const='p',
                        help=f'{bcolors.PINK}Creates a new python project{bcolors.ENDC}')
@@ -127,7 +127,9 @@ def initialize_project():
     else:
         os.mkdir(path)
         if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created new directory')
-        os.system(f'echo "# {project_name}" >> {project_name}/README.md')
+    os.system(f'echo "# {project_name}" >> {project_name}/README.md')
+    if verbose: print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Created README.md')
+
 
     # Change into new project
     os.chdir(path)
