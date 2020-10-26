@@ -1,4 +1,4 @@
-# Venture tools
+# Venture
 
 Venture tools is a command line app start new projects or 'Ventures' easily. Even creating a remote github repository if specified.
 
