@@ -29,21 +29,16 @@ def init():
     parser = argparse.ArgumentParser(description=description,
                                      epilog='project type arguments are mutually exclusive')
 
-    # Modes
-    mode_group = parser.add_mutually_exclusive_group(required=False)
-    mode_group.add_argument('--setup', action='store_const', dest='mode', const='s',
-                            help=f'{bcolors.YELLOW}Runs config setup, use if config is missing or damaged{bcolors.ENDC}')
-    mode_group.add_argument('--config', action='store_const', dest='mode', const='c',
-                            help=f'{bcolors.YELLOW}Outputs config file{bcolors.ENDC}')
+
 
     # Commands
     subparsers = parser.add_subparsers(title='Commands', help='command help')
     # ---> Init
     parser_init = subparsers.add_parser(
-        'init', help=f'{bcolors.PURPLE}Initializes a new project{bcolors.ENDC}')
+        'init', action='store_const', dest='command', const='i', help=f'{bcolors.PURPLE}Initializes a new project{bcolors.ENDC}')
     parser_init.add_argument('location', action='store', nargs=1, type=str,
                              help=f'{bcolors.RED}Location for new project{bcolors.ENDC}')
-
+            # Venture Types
     type_group = parser_init.add_mutually_exclusive_group(required=False)
     type_group.add_argument('--blank', action='store_const', dest='type', const='b',
                             help=f'{bcolors.YELLOW}Creates a new blank project (default){bcolors.ENDC}')
@@ -57,6 +52,17 @@ def init():
     parser_init.add_argument('-v', '--verbose', action='store_true', dest='verbose',
                              help=f'{bcolors.DARKGREY}Changes output to be verbose{bcolors.ENDC}')
 
+    # ---> config
+    parser_config = subparsers.add_parser(
+        'config', action='store_const', dest='command', const='c', help=f'{bcolors.PURPLE}Opens config file for editing{bcolors.ENDC}')
+            # Config Modes
+    mode_group = parser_config.add_mutually_exclusive_group(required=False)
+    mode_group.add_argument('--setup', action='store_const', dest='cmode', const='s',
+                            help=f'{bcolors.YELLOW}Restores config.ini if missing/damaged{bcolors.ENDC}')
+    mode_group.add_argument('--output', action='store_const', dest='cmode', const='o',
+                            help=f'{bcolors.YELLOW}Outputs config file{bcolors.ENDC}')
+
+
     # Sets defaults
     remote = config.defaults(root_path).remote()
     verbose = config.defaults(root_path).verbose()
@@ -69,27 +75,20 @@ def init():
 
 def setup_config():
     """
-    Sets up config file by asking for input from user
+    Resets config file
     """
-    print(f'[{bcolors.CYAN}?{bcolors.ENDC}] Please enter the following information...')
-    username = input(
-        f'[{bcolors.DARKGREY}github.com{bcolors.ENDC}] username = ')
-    access_token = input(
-        f'[{bcolors.DARKGREY}github.com{bcolors.ENDC}] access_token = ')
-    config.create_config(username, access_token, root_path)
+    config.create_config(root_path)
     print(
-        f'[{bcolors.GREEN}*{bcolors.ENDC}] Setup config file at {root_path}/config.ini')
-
+        f'[{bcolors.GREEN}*{bcolors.ENDC}] Reset config file at {root_path}/config.ini')
 
 def print_config():
     """
     Outputs contents of config file to console
     """
-    config_path = root_path+'/config.ini'
-    print(f'[{bcolors.BLUE}#{bcolors.ENDC}] Displaying config file located at... ' +
-          config_path, end='\n\n')
+    # config_path = root_path+'/config.ini'
+    # print(f'[{bcolors.BLUE}#{bcolors.ENDC}] Displaying config file located at... ' +
+    #       config_path, end='\n\n')
     config.display_config(config_path)
-
 
 def make_remote_repo():
     """
@@ -105,7 +104,6 @@ def make_remote_repo():
     except KeyError:
         raise ConnectionAbortedError(
             "Trouble making repository at... github.com/" + username + '/' + project_name)
-
 
 def initialize_project():
     """
@@ -201,29 +199,41 @@ def initialize_project():
         if verbose:
             print(f'[{bcolors.GREEN}*{bcolors.ENDC}] Pushed to github')
 
-
 def main():
     # Set globals
     global username, access_token, project_name, root_path
     # Get root path
     root_path = os.path.abspath(os.path.join(__file__, os.pardir))
     init()
+    command = ARGS.command
 
-    # Check if mode is in setup
-    mode = ARGS.mode
-    if mode == 's':
-        setup_config()
-        exit()
-
-    # Run mode
-    if mode == 'c':
-        print_config()
-    else:
+    # Check if init was run
+    if command == 'i':
         # Get config data
         if ARGS.remote:
             username, access_token = config.get_github_info(root_path)
         project_name = ARGS.location[0].split('/')[-1]
         initialize_project()
+    # Check if config was run
+    elif command == 'c':
+        # Check if mode is in setup
+        cmode = ARGS.cmode
+        if mode == 's':
+            setup_config()
+        # Print mode
+        elif mode == 'o':
+            print_config()
+        else:
+            print(f'{bcolors.RED}InvalidArgument{bcolors.ENDC}: invalid argument entered for venture config',
+                  f'\nUse {bcolors.YELLOW}[-h]{bcolors.ENDC} option for help')
+            exit()
+    else:
+        print(f'{bcolors.RED}Missing Command{bcolors.ENDC}: mising command for venture',
+              f'\nUse {bcolors.YELLOW}[-h]{bcolors.ENDC} option for help')
+        exit()
+
+
+
 
 
 if __name__ == '__main__':
