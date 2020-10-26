@@ -1,5 +1,8 @@
 config.ini
 
+# Vim files
+.vim
+
 # MacOS System-Generated
 .DS_Store
 .DS_Store?
