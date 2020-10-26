@@ -4,11 +4,11 @@ from .globals import *
 def create_config(root_path, username='', access_token=''):
     config = configparser.ConfigParser()
     config['DEFAULT'] = {}
-    config['defaults'] = {'remote': False,
-                            'verbose': False,
-                            'type': 'b'}
-    config['github.com'] = {'User': '',
-                            'AccessToken': ''}
+    config['defaults'] = {'make_remote': False,
+                            'is_verbose': False,
+                            'init_type': 'b'}
+    config['github.com'] = {'user': '',
+                            'access_token': ''}
     with open(os.path.abspath(root_path+'/config.ini'), 'w') as configfile:
         config.write(configfile)
 
@@ -20,7 +20,7 @@ def get_github_info(root_path):
     config.read(os.path.abspath(root_path+'/config.ini'))
     username = config['github.com']['User']
     access_token = config['github.com']['AccessToken']
-    if len(username) > 0 and len(access_token) > 0:
+    if username == '' and access_token == '':
         print(f'[{bcolors.CYAN}?{bcolors.ENDC}] Please enter the following information...')
         username = input(f'[{bcolors.DARKGREY}github.com{bcolors.ENDC}] username = ')
         access_token = input(f'[{bcolors.DARKGREY}github.com{bcolors.ENDC}] access_token = ')
@@ -33,8 +33,8 @@ class defaults():
         self.config.read(os.path.abspath(self.root_path+'/config.ini'))
 
     def remote(self):
-        return ast.literal_eval(self.config['defaults']['remote'])
+        return ast.literal_eval(self.config['defaults']['make_remote'])
     def verbose(self):
-        return ast.literal_eval(self.config['defaults']['remote'])
+        return ast.literal_eval(self.config['defaults']['is_verbose'])
     def type(self):
-        return self.config['defaults']['remote']
+        return self.config['defaults']['init_type']

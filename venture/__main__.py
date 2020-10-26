@@ -35,8 +35,8 @@ def init():
     subparsers = parser.add_subparsers(title='Commands', help='command help')
     # ---> Init
     parser_init = subparsers.add_parser(
-        'init', action='store_const', dest='command', const='i', help=f'{bcolors.PURPLE}Initializes a new project{bcolors.ENDC}')
-    parser_init.add_argument('location', action='store', nargs=1, type=str,
+        'init', help=f'{bcolors.PURPLE}Initializes a new project{bcolors.ENDC}')
+    parser_init.add_argument('destination', action='store', nargs=1, type=str,
                              help=f'{bcolors.RED}Location for new project{bcolors.ENDC}')
             # Venture Types
     type_group = parser_init.add_mutually_exclusive_group(required=False)
@@ -54,20 +54,28 @@ def init():
 
     # ---> config
     parser_config = subparsers.add_parser(
-        'config', action='store_const', dest='command', const='c', help=f'{bcolors.PURPLE}Opens config file for editing{bcolors.ENDC}')
+        'config', help=f'{bcolors.PURPLE}Opens config file for editing{bcolors.ENDC}')
+
             # Config Modes
     mode_group = parser_config.add_mutually_exclusive_group(required=False)
-    mode_group.add_argument('--setup', action='store_const', dest='cmode', const='s',
-                            help=f'{bcolors.YELLOW}Restores config.ini if missing/damaged{bcolors.ENDC}')
-    mode_group.add_argument('--output', action='store_const', dest='cmode', const='o',
+    mode_group.add_argument('--reset', action='store_const', dest='conf_mode', const='s',
+                            help=f'{bcolors.YELLOW}Resets config.ini, use if missing/damaged{bcolors.ENDC}')
+    mode_group.add_argument('--output', action='store_const', dest='conf_mode', const='o',
                             help=f'{bcolors.YELLOW}Outputs config file{bcolors.ENDC}')
+    mode_group.add_argument('--templates', action='store_const', dest='conf_mode', const='t',
+                            help=f'{bcolors.YELLOW}Outputs path to templates folder{bcolors.ENDC}')
 
 
-    # Sets defaults
+    # Gets defaults from config
     remote = config.defaults(root_path).remote()
     verbose = config.defaults(root_path).verbose()
     type = config.defaults(root_path).type()
-    parser_init.set_defaults(type=type, verbose=verbose, remote=remote)
+
+    # Sets defaults
+    parser.set_defaults(init=False, config=False, verbose=verbose)
+    parser_init.set_defaults(init=True, destination=None, type=type, remote=remote)
+    parser_config.set_defaults(config=True, conf_mode=None)
+
 
     global ARGS
     ARGS = parser.parse_args()
@@ -85,12 +93,12 @@ def print_config():
     """
     Outputs contents of config file to console
     """
-    # config_path = root_path+'/config.ini'
+    config_path = root_path+'/config.ini'
     # print(f'[{bcolors.BLUE}#{bcolors.ENDC}] Displaying config file located at... ' +
     #       config_path, end='\n\n')
     config.display_config(config_path)
 
-def make_remote_repo():
+def make_remote_repo(username, access_token):
     """
     Makes remote repo and returns the clone url
     """
@@ -102,14 +110,13 @@ def make_remote_repo():
     try:
         return json.loads(login.text)['clone_url']
     except KeyError:
-        raise ConnectionAbortedError(
-            "Trouble making repository at... github.com/" + username + '/' + project_name)
+        raise ConnectionAbortedError("Trouble making repository at... github.com/" + username + '/' + project_name)
 
 def initialize_project():
     """
     Goes through process of initializing a project
     """
-    path = ARGS.location[0]
+    path = ARGS.destination[0]
     type = ARGS.type
     verbose = ARGS.verbose
     remote = ARGS.remote
@@ -124,11 +131,12 @@ def initialize_project():
 
     # Makes github repo
     if remote:
+        username, access_token = config.get_github_info(root_path)
         # Create Github remote repository
         if verbose:
             print(f'[{bcolors.BLUE}~{bcolors.ENDC}] Contacting github API')
         try:
-            remote_url = make_remote_repo()
+            remote_url = make_remote_repo(username, access_token)
         except ConnectionAbortedError as err:
             print(f'{bcolors.RED}ConnectionAbortedError{bcolors.ENDC}:', err,
                   f'\nUse {bcolors.YELLOW}[-h]{bcolors.ENDC} option for help')
@@ -201,40 +209,36 @@ def initialize_project():
 
 def main():
     # Set globals
-    global username, access_token, project_name, root_path
+    global project_name, root_path
     # Get root path
     root_path = os.path.abspath(os.path.join(__file__, os.pardir))
     init()
-    command = ARGS.command
 
     # Check if init was run
-    if command == 'i':
+    if ARGS.init == True:
         # Get config data
-        if ARGS.remote:
-            username, access_token = config.get_github_info(root_path)
-        project_name = ARGS.location[0].split('/')[-1]
+        project_name = ARGS.destination[0].split('/')[-1]
         initialize_project()
     # Check if config was run
-    elif command == 'c':
+    elif ARGS.config == True:
         # Check if mode is in setup
-        cmode = ARGS.cmode
+        mode = ARGS.conf_mode
+        # Remake config
         if mode == 's':
             setup_config()
         # Print mode
         elif mode == 'o':
             print_config()
+        elif mode == 't':
+            print(root_path+'/templates/')
+        # Open config file in vim
         else:
-            print(f'{bcolors.RED}InvalidArgument{bcolors.ENDC}: invalid argument entered for venture config',
-                  f'\nUse {bcolors.YELLOW}[-h]{bcolors.ENDC} option for help')
-            exit()
+            config_path = root_path+'/config.ini'
+            os.system(f'vim {config_path}')
     else:
         print(f'{bcolors.RED}Missing Command{bcolors.ENDC}: mising command for venture',
               f'\nUse {bcolors.YELLOW}[-h]{bcolors.ENDC} option for help')
         exit()
-
-
-
-
 
 if __name__ == '__main__':
     main()
