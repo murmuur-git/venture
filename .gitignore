@@ -1,0 +1,17 @@
+# config.ini
+
+# Pipfiles
+Pipfile
+Pipfile.lock
+
+# Vim files
+.vim
+
+# MacOS System-Generated
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
