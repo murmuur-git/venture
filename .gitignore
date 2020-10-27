@@ -1,5 +1,9 @@
 config.ini
 
+# Pipfiles
+Pipfile
+Pipfile.lock
+
 # Vim files
 .vim
 
