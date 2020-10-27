@@ -9,9 +9,6 @@ author: murmuur
 from .libs import *
 
 
-# Import local dependencies
-from .libs import config_editor as config
-from .libs import file_prep as prep
 
 # Import dependencies
 import os
@@ -20,6 +17,9 @@ import sys
 import json
 import requests
 
+# Import local dependencies
+from .libs import config_editor as config
+from .libs import file_prep as prep
 
 def init():
     """
@@ -67,9 +67,12 @@ def init():
 
 
     # Gets defaults from config
-    remote = config.defaults(root_path).remote()
-    verbose = config.defaults(root_path).verbose()
-    type = config.defaults(root_path).type()
+    try:
+        remote = config.defaults(root_path).remote()
+        verbose = config.defaults(root_path).verbose()
+        type = config.defaults(root_path).type()
+    except KeyError:
+        setup_config()
 
     # Sets defaults
     parser.set_defaults(init=False, config=False, verbose=verbose)
