@@ -4,6 +4,7 @@ Venture is a command line app start new projects or "Ventures". Even creating a 
 
 ## Installation
 **Method 1: pip install (NOT FUNCTIONAL)**
+
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install venture.
 
 ```bash
