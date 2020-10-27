@@ -73,6 +73,9 @@ def init():
         type = config.defaults(root_path).type()
     except KeyError:
         setup_config()
+        remote = config.defaults(root_path).remote()
+        verbose = config.defaults(root_path).verbose()
+        type = config.defaults(root_path).type()
 
     # Sets defaults
     parser.set_defaults(init=False, config=False, verbose=verbose)

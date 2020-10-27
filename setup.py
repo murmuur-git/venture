@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="venture-tools",
-    version="2020.10.26",
+    version="2020.10.27",
     author="murmuur",
     author_email="murmuur@protonmail.com",
     description="a CLI tool to initialize a new project",
