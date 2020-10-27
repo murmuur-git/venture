@@ -10,7 +10,7 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install venture
 pip install venture-tools
 ```
 
-**Method 2: Clone repo run install.sh**
+**Method 2: install.sh**
 ```bash
 git clone https://github.com/murmuur-git/venture.git
 sh venture-tools/install.sh
