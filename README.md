@@ -1,6 +1,6 @@
 # Venture
 
-Venture tools is a command line app start new projects or "Ventures". Even creating a remote github repository if specified.
+Venture is a command line app start new projects or "Ventures". Even creating a remote github repository if specified.
 
 ## Installation
 **Method 1: pip install (NOT FUNCTIONAL)**
