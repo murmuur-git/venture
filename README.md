@@ -1,8 +1,9 @@
 # Venture
 
-Venture tools is a command line app start new projects or "Ventures". Even creating a remote github repository if specified.
+Venture is a command line app start new projects or "Ventures". Even creating a remote github repository if specified.
 
 ## Installation
+**Method 1: pip install (NOT FUNCTIONAL)**
 
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install venture.
 
@@ -10,34 +11,40 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install venture
 pip install venture-tools
 ```
 
+**Method 2: install.sh**
+```bash
+git clone https://github.com/murmuur-git/venture.git
+sh venture-tools/install.sh
+```
+
 ## Usage
 
 ### Init
 **Start a new venture**
-```
+```bash
 venture init [destination]
 ```
 **Start a new python venture**
-```
+```bash
 venture init -p [destination]
 ```
 **Start a venture and make a remote repository**
-```
+```bash
 venture init -r [destination]
 ```
 Uses a github authentication token, so you will need to generate one in your github settings
 
 ### Config
 **Opens config.ini in vim for editing**
-```
+```bash
 venture config
 ```
 **Resets config.ini, use if missing/damaged**
-```
+```bash
 venture config --reset
 ```
 **Output contents of config.ini**
-```
+```bash
 venture config --output
 ```
 ## Config.ini
