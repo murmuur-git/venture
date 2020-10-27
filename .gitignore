@@ -1,7 +1,7 @@
 config.ini
 
 # Vim files
-.vim
+.coc-settings.json
 
 # MacOS System-Generated
 .DS_Store
