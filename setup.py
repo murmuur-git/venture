@@ -7,10 +7,12 @@ setuptools.setup(
     name="venture-tools",
     version="2020.10.26",
     author="murmuur",
+    author_email="murmuur@protonmail.com",
     description="a CLI tool to initialize a new project",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/murmuur-git/venture.git",
+    download_url="https://github.com/murmuur-git/venture/archive/v2020.10.26-alpha.2.tar.gz",
     packages=setuptools.find_packages(),
     python_requires='>=3.6',
     install_requires=[
